@@ -5,7 +5,6 @@ package main
 
 import (
 	"context"
-	"crypto/aes"
 	"crypto/cipher"
 	"encoding/json"
 	"fmt"
@@ -15,6 +14,8 @@ import (
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/sid-sun/seaturtle"
 
 	"github.com/klauspost/compress/zstd"
 	"github.com/spf13/cobra"
@@ -305,7 +306,7 @@ func decryptUnsigned(ctx context.Context, k *crypto.Key, buf []byte) []byte {
 	nonce, ct := buf[:16], buf[16:l-16]
 	out := make([]byte, len(ct))
 
-	c, err := aes.NewCipher(k.EncryptionKey[:])
+	c, err := seaturtle.NewCipher(k.EncryptionKey[:])
 	if err != nil {
 		panic(fmt.Sprintf("unable to create cipher: %v", err))
 	}

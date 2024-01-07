@@ -1,11 +1,12 @@
 package crypto
 
 import (
-	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
 	"encoding/json"
 	"fmt"
+
+	"github.com/sid-sun/seaturtle"
 
 	"github.com/restic/restic/internal/errors"
 
@@ -17,7 +18,7 @@ const (
 	macKeySizeK = 16                        // for AES-128
 	macKeySizeR = 16                        // for Poly1305
 	macKeySize  = macKeySizeK + macKeySizeR // for Poly1305-AES128
-	ivSize      = aes.BlockSize
+	ivSize      = seaturtle.BlockSize
 
 	macSize = poly1305.TagSize
 
@@ -104,7 +105,7 @@ func poly1305PrepareKey(nonce []byte, key *MACKey) [32]byte {
 
 	maskKey(key)
 
-	cipher, err := aes.NewCipher(key.K[:])
+	cipher, err := seaturtle.NewCipher(key.K[:])
 	if err != nil {
 		panic(err)
 	}
@@ -253,7 +254,7 @@ func (k *Key) NonceSize() int {
 // plaintext and its ciphertext.
 func (k *Key) Overhead() int {
 	return macSize
-}
+} 
 
 // sliceForAppend takes a slice and a requested number of bytes. It returns a
 // slice with the contents of the given slice followed by that many bytes and a
@@ -298,7 +299,7 @@ func (k *Key) Seal(dst, nonce, plaintext, additionalData []byte) []byte {
 
 	ret, out := sliceForAppend(dst, len(plaintext)+k.Overhead())
 
-	c, err := aes.NewCipher(k.EncryptionKey[:])
+	c, err := seaturtle.NewCipher(k.EncryptionKey[:])
 	if err != nil {
 		panic(fmt.Sprintf("unable to create cipher: %v", err))
 	}
@@ -351,7 +352,7 @@ func (k *Key) Open(dst, nonce, ciphertext, _ []byte) ([]byte, error) {
 
 	ret, out := sliceForAppend(dst, len(ct))
 
-	c, err := aes.NewCipher(k.EncryptionKey[:])
+	c, err := seaturtle.NewCipher(k.EncryptionKey[:])
 	if err != nil {
 		panic(fmt.Sprintf("unable to create cipher: %v", err))
 	}
